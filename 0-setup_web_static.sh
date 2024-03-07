@@ -1,34 +1,19 @@
 #!/usr/bin/env bash
-
-# Update package index and install nginx
-sudo apt-get update
+# Script that configures Nginx server with some folders and files
+sudo apt-get -y update
 sudo apt-get -y install nginx
-
-# Create necessary folders
-sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
-
-# Create a fake HTML file
-sudo echo "<html><head></head><body>Holberton School</body></html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
-
-# Create symbolic link
+sudo service nginx start
+sudo mkdir -p /data/web_static/releases/test/
+sudo mkdir -p /data/web_static/shared/
+sudo echo "<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>" | sudo tee /data/web_static/releases/test/index.html
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
-
-# Change ownership recursively
 sudo chown -R ubuntu:ubuntu /data/
-
-# Update nginx configuration
-config_text="server {
-    listen 80;
-    listen [::]:80 default_server;
-
-    location /hbnb_static {
-        alias /data/web_static/current/;
-    }
-}"
-echo "$config_text" | sudo tee /etc/nginx/sites-available/default > /dev/null
-
-# Restart nginx
+sudo sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t\tautoindex off;\n\t}\n' /etc/nginx/sites-available/default
 sudo service nginx restart
-
 exit 0
-
