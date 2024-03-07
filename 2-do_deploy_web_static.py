@@ -6,7 +6,7 @@ from datetime import datetime
 from os import path
 
 
-env.hosts = ['100.26.160.241', '100.26.17.84']
+env.hosts = ['54.146.90.12', '18.207.235.192']
 env.user = 'ubuntu'
 env.key_filename = '~/.ssh/school'
 
@@ -54,3 +54,4 @@ web_static_{}/ /data/web_static/current'.format(timestamp))
 
         # return True on success
         return True
+
