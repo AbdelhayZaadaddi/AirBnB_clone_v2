@@ -8,7 +8,7 @@ from datetime import datetime
 from os.path import exists
 
 
-env.hosts = ['52.87.255.164', '18.204.11.196']
+env.hosts = ['52.3.68.204', '18.204.20.83']
 
 
 
