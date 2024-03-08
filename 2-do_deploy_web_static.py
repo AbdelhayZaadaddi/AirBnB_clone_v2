@@ -1,67 +1,30 @@
 #!/usr/bin/python3
 """
-This file contains a script that distribute an archive to my web servers
-using the function do_deploy
+Fabric script based on the file 1-pack_web_static.py that distributes an
+archive to the web servers
 """
 
-
-import os
-from fabric.api import *
-from datetime import datetime
-
-
-env.user = 'ubuntu'
+from fabric.api import put, run, env
+from os.path import exists
 env.hosts = ['52.3.68.204', '18.204.20.83']
 
 
-def do_pack():
-    """This function generates a .tgz archive"""
-    local('mkdir -p versions')
-
-    # generate the .tgz archive
-    time = datetime.now().strftime('%Y%m%d%H%M%S')
-    archive_path = 'versions/web_static_{}.tgz'.format(time)
-    result = local('tar -czvf {} web_static'.format(archive_path))
-
-    # if successful return the archive path
-    if result.succeeded:
-        return archive_path
-    else:
-        return None
-
-
 def do_deploy(archive_path):
-    """Distributes an archive to the web servers"""
-    if not os.path.exists(archive_path):
+    """distributes an archive to the web servers"""
+    if exists(archive_path) is False:
         return False
-
-    print("Deploying new version")
-
-    # extract the filename without extension
-    filename = archive_path.split("/")[-1]
-    name = filename[: -4]
-
-    # define the release directory using the extracted name
-    release_dir = "/data/web_static/releases/{}".format(name)
-
-    # upload and uncompress the archive to a folder
-    put(archive_path, "/tmp/")
-    run("mkdir -p {}".format(release_dir))
-    r = run("tar -xzf /tmp/{} -C {}".format(filename, release_dir))
-
-    if r.failed:
+    try:
+        file_n = archive_path.split("/")[-1]
+        no_ext = file_n.split(".")[0]
+        path = "/data/web_static/releases/"
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}{}/'.format(path, no_ext))
+        run('tar -xzf /tmp/{} -C {}{}/'.format(file_n, path, no_ext))
+        run('rm /tmp/{}'.format(file_n))
+        run('mv {0}{1}/web_static/* {0}{1}/'.format(path, no_ext))
+        run('rm -rf {}{}/web_static'.format(path, no_ext))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {}{}/ /data/web_static/current'.format(path, no_ext))
+        return True
+    except:
         return False
-
-    # copy files into the right directory
-    run("cp -r {}/web_static/* {}".format(release_dir, release_dir))
-    run("rm -rf /tmp/{} {}/web_static".format(filename, release_dir))
-
-    # delete symbolic link from web server
-    run("rm -rf /data/web_static/current")
-
-    # create a symlink to new version of code
-    run("ln -s {} /data/web_static/current".format(release_dir))
-
-    print("New version deployed")
-
-    return True
