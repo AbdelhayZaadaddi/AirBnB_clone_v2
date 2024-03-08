@@ -1,56 +1,67 @@
 #!/usr/bin/python3
-"""Compress web static package
 """
+This file contains a script that distribute an archive to my web servers
+using the function do_deploy
+"""
+
+
+import os
 from fabric.api import *
 from datetime import datetime
-from os import path
 
 
-env.hosts = ['52.3.68.204', '18.204.20.83']
 env.user = 'ubuntu'
-env.key_filename = '~/.ssh/school'
+env.hosts = ['52.3.68.204', '18.204.20.83']
+
+
+def do_pack():
+    """This function generates a .tgz archive"""
+    local('mkdir -p versions')
+
+    # generate the .tgz archive
+    time = datetime.now().strftime('%Y%m%d%H%M%S')
+    archive_path = 'versions/web_static_{}.tgz'.format(time)
+    result = local('tar -czvf {} web_static'.format(archive_path))
+
+    # if successful return the archive path
+    if result.succeeded:
+        return archive_path
+    else:
+        return None
 
 
 def do_deploy(archive_path):
-        """Deploy web files to server
-        """
-        try:
-                if not (path.exists(archive_path)):
-                        return False
+    """Distributes an archive to the web servers"""
+    if not os.path.exists(archive_path):
+        return False
 
-                # upload archive
-                put(archive_path, '/tmp/')
+    print("Deploying new version")
 
-                # create target dir
-                timestamp = archive_path[-18:-4]
-                run('sudo mkdir -p /data/web_static/\
-releases/web_static_{}/'.format(timestamp))
+    # extract the filename without extension
+    filename = archive_path.split("/")[-1]
+    name = filename[: -4]
 
-                # uncompress archive and delete .tgz
-                run('sudo tar -xzf /tmp/web_static_{}.tgz -C \
-/data/web_static/releases/web_static_{}/'
-                    .format(timestamp, timestamp))
+    # define the release directory using the extracted name
+    release_dir = "/data/web_static/releases/{}".format(name)
 
-                # remove archive
-                run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
+    # upload and uncompress the archive to a folder
+    put(archive_path, "/tmp/")
+    run("mkdir -p {}".format(release_dir))
+    r = run("tar -xzf /tmp/{} -C {}".format(filename, release_dir))
 
-                # move contents into host web_static
-                run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
-/data/web_static/releases/web_static_{}/'.format(timestamp, timestamp))
+    if r.failed:
+        return False
 
-                # remove extraneous web_static dir
-                run('sudo rm -rf /data/web_static/releases/\
-web_static_{}/web_static'
-                    .format(timestamp))
+    # copy files into the right directory
+    run("cp -r {}/web_static/* {}".format(release_dir, release_dir))
+    run("rm -rf /tmp/{} {}/web_static".format(filename, release_dir))
 
-                # delete pre-existing sym link
-                run('sudo rm -rf /data/web_static/current')
+    # delete symbolic link from web server
+    run("rm -rf /data/web_static/current")
 
-                # re-establish symbolic link
-                run('sudo ln -s /data/web_static/releases/\
-web_static_{}/ /data/web_static/current'.format(timestamp))
-        except:
-                return False
+    # create a symlink to new version of code
+    run("ln -s {} /data/web_static/current".format(release_dir))
 
-        # return True on success
-        return True
+    print("New version deployed")
+
+    return True
