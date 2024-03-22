@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""This module represents the state class"""
+"""This is the state class"""
 from sqlalchemy import Column, Integer, String
 import models
 from models.city import City
@@ -12,7 +12,7 @@ STORAGE_TYPE = os.environ.get('HBNB_TYPE_STORAGE')
 
 
 class State(BaseModel, Base):
-    """ A class for State
+    """This is the class for State
     Attributes:
         name: input name
     """
