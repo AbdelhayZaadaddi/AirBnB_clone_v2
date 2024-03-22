@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""This moule represents the city class"""
+"""This is the city class"""
 from sqlalchemy.ext.declarative import declarative_base
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Integer, String
