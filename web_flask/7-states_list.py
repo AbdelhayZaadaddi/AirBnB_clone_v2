@@ -1,24 +1,25 @@
 #!/usr/bin/python3
-""" Flask web application"""
+"""Flask web application"""
+
 
 from flask import Flask, render_template
 from models import storage
+from models import *
 from models.state import State
-
 
 app = Flask(__name__)
 
 
 @app.route('/states_list', strict_slashes=False)
 def states_list():
-    """show all states """
-    states = storage.all(State)
-    return render_template('7-states_list.html', states=states)
+    """ show states """
+    States = storage.all(State)
+    return render_template('7-states_list.html', states=States)
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """remove the current SQLAlchemy Session"""
+def tear_db(exception):
+    """close storage"""
     return storage.close()
 
 
