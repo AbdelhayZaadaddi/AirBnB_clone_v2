@@ -1,41 +1,41 @@
 #!/usr/bin/python3
-""" Starts a Flask web application """
+""" Flask application """
+
 from flask import Flask
-
-
 app = Flask(__name__)
 
 
 @app.route('/', strict_slashes=False)
-def hello_hbnb():
-    """ Displays Hello HBNB! """
+def hello():
+    """ say hello """
     return 'Hello HBNB!'
 
 
 @app.route('/hbnb', strict_slashes=False)
-def display_hbnb():
-    """ Displays HBNB """
+def hbnb():
+    """ show HBNB """
     return 'HBNB'
 
 
 @app.route('/c/<text>', strict_slashes=False)
-def display_c(text):
-    """ Displays C followed by the value of the text variable """
-    return 'C {}'.format(text.replace('_', ' '))
+def c(text):
+    """ show varible text """
+    return f'C {text.replace("_", " ")}'
 
 
-@app.route('/python/', defaults={'text': 'is cool'}, strict_slashes=False)
+@app.route('/python/', strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
-def display_python(text='is cool'):
-    """ Displays Python followed by the value of the text variable """
-    return 'Python {}'.format(text.replace('_', ' '))
+def python(text='is_cool'):
+    """ show variable text """
+    return f'Python {text.replace("_", " ")}'
 
 
-@app.route('/number/<int:n>', strict_slashes=False)
-def display_number(n):
-    """ Displays n is a number if n is an integer """
-    return '{} is a number'.format(n)
+@app.route('/number/<int:n>')
+def check_integer(n):
+    """ Show only integers """
+    return (f"{n} is a number")
 
 
 if __name__ == '__main__':
+    app.run(debug=True)
     app.run(host='0.0.0.0', port=5000)
