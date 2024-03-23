@@ -1,14 +1,12 @@
 #!/usr/bin/python3
 """This is the state class"""
+from sqlalchemy.ext.declarative import declarative_base
+from models.base_model import BaseModel, Base
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String
 import models
 from models.city import City
 import shlex
-from sqlalchemy.ext.declarative import declarative_base
-from models.base_model import BaseModel, Base
-from sqlalchemy.orm import relationship
-import os
-STORAGE_TYPE = os.environ.get('HBNB_TYPE_STORAGE')
 
 
 class State(BaseModel, Base):
@@ -23,18 +21,15 @@ class State(BaseModel, Base):
 
     @property
     def cities(self):
-        if STORAGE_TYPE != 'db':
-            var = models.storage.all()
-            lista = []
-            result = []
-            for key in var:
-                city = key.replace('.', ' ')
-                city = shlex.split(city)
-                if city[0] == 'City':
-                    lista.append(var[key])
-            for elem in lista:
-                if elem.state_id == self.id:
-                    result.append(elem)
-            return result
-        else:
-            return [city for city in self.cities]
+        var = models.storage.all()
+        lista = []
+        result = []
+        for key in var:
+            city = key.replace('.', ' ')
+            city = shlex.split(city)
+            if (city[0] == 'City'):
+                lista.append(var[key])
+        for elem in lista:
+            if (elem.state_id == self.id):
+                result.append(elem)
+        return (result)
