@@ -26,7 +26,7 @@ def c(text):
 @app.route('/python/', strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
 def python(text='is_cool'):
-    """ Show variable text """
+    """ show variable text """
     return f'Python {text.replace("_", " ")}'
 
 
@@ -38,13 +38,13 @@ def check_integer(n):
 
 @app.route('/number_template/<int:n>')
 def number_template(n):
-    """ Show only integers """
+    """ display number """
     return render_template("5-number.html", n=n)
 
 
 @app.route('/number_odd_or_even/<int:n>')
-def even_or_add(n):
-    """ Show only integers """
+def even_or_odd(n):
+    """ display number even or odd """
     return render_template("6-number_odd_or_even.html", n=n)
 
 

@@ -26,7 +26,7 @@ def c(text):
 @app.route('/python/', strict_slashes=False)
 @app.route('/python/<text>', strict_slashes=False)
 def python(text='is_cool'):
-    """ Show variable text """
+    """ show variable text """
     return f'Python {text.replace("_", " ")}'
 
 
